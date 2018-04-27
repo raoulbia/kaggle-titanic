@@ -1,0 +1,11 @@
+bokeh
+pandas
+pytest
+bidict
+matplotlib
+xmltodict
+tqdm
+tabulate
+
+# also install self (requires setup.py to exist)
+# -e .
