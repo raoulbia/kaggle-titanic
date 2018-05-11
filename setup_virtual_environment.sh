@@ -14,7 +14,7 @@ conda create -qy --name ${VIRTUALENV} mkl numpy scipy scikit-learn
 
 source activate ${VIRTUALENV}
 
-conda update pip
+#conda update pip
 
 pip install -r requirements.txt
 
