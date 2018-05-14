@@ -15,8 +15,16 @@ test.insert(loc=0, column='Survived', value=-9)
 # print(test.head())
 
 data = train.append(test)
-# print(data.head())
+print(data.head())
 # print(data.tail())
+
+
+def substrings_in_string(big_string, substrings):
+    for substring in substrings:
+        if string.find(big_string, substring) != -1:
+            return substring
+    print(big_string)
+    return np.nan
 
 # Handle NA values and replace by mean or "usual" value
 
@@ -35,8 +43,15 @@ data = data.join(titles)
 # Add family size as a combination of the other 2 columns
 
 print("Calculating family size and adding column...")
-fsiz = pd.DataFrame(data.apply(lambda x: x.SibSp+x.Parch, axis=1), columns=["FSize"])
+fsiz = pd.DataFrame(data.apply(lambda x: x.SibSp+x.Parch+1, axis=1), columns=["FSize"])
 data = data.join(fsiz)
+
+data['IsAlone'] = 0
+data.loc[data['FSize'] == 1, 'IsAlone'] = 1
+
+#Turning cabin number into Deck
+cabin_list = ['A', 'B', 'C', 'D', 'E', 'F', 'T', 'G', 'Unknown']
+data['Deck']=data['Cabin'].map(lambda x: substrings_in_string(x, cabin_list))
 
 # replace columns that are not usable by numeric algorithms and have no use (cabin, ticket...) or have been substituted (parch, sibsp)
 
@@ -58,6 +73,10 @@ for col in data.select_dtypes(exclude=["number"]).columns:
     data[col] = data[col].astype('category')
     print(data[col].cat.categories)
     data[col] = data[col].cat.codes
+
+
+print(data.head())
+print(data.tail())
 
 train = data[data['Survived']!=-9]
 train.to_csv("../local-data/train-clean.csv")
