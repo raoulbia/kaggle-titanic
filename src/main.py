@@ -14,14 +14,14 @@ X = np.matrix(normalize(train.ix[:, 1:])) # IMPORTANT: normalize!
 y = np.matrix(train.ix[:, :1])
 # print(X[:5,:])
 # print(y[:5,:])
-# print('shape X', X.shape)
+print('shape X', X.shape)
 # print('shape y', y.shape)
 
 # add intercept terms
 a = np.ones((X.shape[0], 1))
 X = np.append(a, X, axis=1)
 # print(X[:5,:])
-# print('shape X after adding ones', X.shape)
+print('shape X after adding ones', X.shape)
 
 
 # Initialize fitting parameters
@@ -56,3 +56,28 @@ p = predict(X=X, theta=theta_optimized);
 
 print('Train Accuracy:', round(np.mean(p == y),2) * 100)
 print('Expected Train Accuracy: 38%')
+
+
+# use test data
+test=pd.read_csv("../local-data/test-clean.csv", sep=",", header=0, index_col=0)
+print(test.head())
+
+X = np.matrix(normalize(test)) # IMPORTANT: normalize!
+# print(X[:5,:])
+print('shape X', X.shape)
+
+# add intercept terms
+a = np.ones((X.shape[0], 1))
+X = np.append(a, X, axis=1)
+# print(X[:5,:])
+print('shape X after adding ones', X.shape)
+
+p = predict(X=X, theta=theta_optimized)
+print(type(pd.DataFrame(p)))
+print('Predicted % Survived:', round(np.mean(p == 1),2) * 100)
+
+X_ids = test.index.values
+print(X_ids)
+
+res = pd.concat([pd.DataFrame(X_ids), pd.DataFrame(p)], axis=1)
+res.to_csv("../local-data/result.csv", index=False, header=False)

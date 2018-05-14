@@ -6,7 +6,7 @@ def predict(X, theta):
 
     # initialize variables
     m = X.shape[0]  # number of training examples
-    p = np.zeros((m, 1));
+    p = np.zeros((m, 1)).astype(int)
     # print(p.shape)
 
     predictions = X * theta
