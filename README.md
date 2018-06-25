@@ -9,12 +9,13 @@ Repo for practicing machine learning using the Kaggle Titanic survival predictio
 
 **Conclusion**
 
-In this repo I took a short cut and used data cleaning code from users who posted these online (references are in the
-source code). My goal was to focus on
-the implementation of a cost function and of gradient descent as described in the Andrew NG Coursera Introduction to ML
-course.
-The scores I achieve are at the lower end which goes to show that the best algorithm will
-not perform well unless considerable effort has gone into data cleaning and feature engineering!
+My goal was to focus on the implementation of logistic regression using
+a **cost function** and using the **gradient descent** algorithm.
+I am confident that the implementation is correct as it followed the assignemnts of the
+Coursera [Machine Learning]<https://www.coursera.org/learn/machine-learning> course by Andrew Ng.
+However, the scores I achieve when submitting on Kaggle are at the lower. The key take away is then, in my view,
+that a well-designed solution adf the best algorithms will not perform well unless
+considerable effort is put into data exploration and feature engineering!
 
 .
 
