@@ -3,6 +3,7 @@ pandas
 pytest
 bidict
 matplotlib
+seaborn
 xmltodict
 tqdm
 tabulate
