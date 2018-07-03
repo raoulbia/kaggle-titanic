@@ -28,11 +28,11 @@ from data_stats import explore_categories, explore_corr
 from data_viz import bar_plot_class_var, missing_values, \
     distribution_by_feature, correlation_features, \
     scatterplot, regplot, pairplot, \
-    costHistoryPlot
+    costHistoryPlot, plot_learning_curve
 
 
 def model_data(train_file_path, test_file_path, results_file_path,
-               test_size, num_iters, learning_rate, reg_term,
+               test_size, num_iters, learning_rate, reg_param,
                apply_to_kaggle):
 
     # get data
@@ -59,14 +59,12 @@ def model_data(train_file_path, test_file_path, results_file_path,
     # tain/test split
     X_train, X_test, y_train, y_test = split_titanic_data(X, test_size=test_size)
 
-
-    costPlot = []
+    # add intercept terms column
+    X_train = np.append(np.ones((X_train.shape[0], 1)), X_train, axis=1)
+    X_test = np.append(np.ones((X_test.shape[0], 1)), X_test, axis=1)
 
 
     ### Train Logistic Regression
-
-    # add intercept terms column
-    X_train = np.append(np.ones((X_train.shape[0], 1)), X_train, axis=1)
 
     # initial_theta
     initial_theta = np.zeros((X_train.shape[1], 1))
@@ -75,7 +73,7 @@ def model_data(train_file_path, test_file_path, results_file_path,
     # get cost and optimized theta
     costHistory, theta_optimized = costFunctionReg(theta=initial_theta, X=X_train, y=y_train,
                                                    learning_rate=learning_rate,
-                                                   reg_term=reg_term,
+                                                   reg_param=reg_param,
                                                    iterations=num_iters)
 
     # print optimized feature weights
@@ -92,11 +90,26 @@ def model_data(train_file_path, test_file_path, results_file_path,
 
 
     ### Predict on X_test
-    # add intercept terms column
-    X_test = np.append(np.ones((X_test.shape[0], 1)), X_test, axis=1)
     p = predict(X=X_test, theta=theta_optimized)
     evaluate(y=y_test, p=p)
 
+
+    ### Learning Curve
+    m = X_train.shape[0] # number of training examples
+    m=22
+    logger.info('nbr training examples: {}'.format(m))
+    error_train = np.zeros((m, 1))
+    for i in range(1,m):
+        cost, _ = costFunctionReg(theta=theta_optimized, X=X_train[0: i,:], y=y_train[0: i],
+                                         learning_rate = learning_rate,
+                                         reg_param = 0,
+                                         iterations=1)
+        # logger.info('cost for {} examples: {}'.format(i, cost))
+        error_train[i] = cost
+        # error_val(i) = costFunctionReg(Xval, yval, theta_optimized, 0)
+
+    # print(error_train)
+    plot_learning_curve(errors=error_train)
 
     ### Apply to Kaggle test data
 
@@ -133,7 +146,7 @@ if __name__ == '__main__':
     argparser.add_argument('--test-size', type=float)
     argparser.add_argument('--num-iters', type=int)
     argparser.add_argument('--learning-rate', type=float)
-    argparser.add_argument('--reg-term', type=int)
+    argparser.add_argument('--reg-param', type=int)
     argparser.add_argument('--apply-to-kaggle', type=int)
     args = argparser.parse_args()
 

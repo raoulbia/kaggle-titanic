@@ -44,3 +44,10 @@ def costHistoryPlot(cost_history):
         x.append(index)
     plt.plot(x, cost_history)
     plt.show()
+
+def plot_learning_curve(errors):
+    x = []
+    for index, g in enumerate(errors):
+        x.append(index)
+    plt.plot(x, errors)
+    plt.show()

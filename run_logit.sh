@@ -7,5 +7,5 @@ python3 src/model_train.py \
     --test-size 0.4 \
     --num-iters 1000 \
     --learning-rate 0.001 \
-    --reg-term 1 \
-    --apply-to-kaggle 1
+    --reg-param 1 \
+    --apply-to-kaggle -1

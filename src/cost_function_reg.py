@@ -9,7 +9,7 @@ np.set_printoptions(suppress=True)
 
 from utils import sigmoid
 
-def costFunctionReg(theta, X, y, learning_rate, reg_term, iterations):
+def costFunctionReg(theta, X, y, learning_rate, reg_param, iterations):
 
     # init useful vars
     costHistory = []
@@ -24,31 +24,22 @@ def costFunctionReg(theta, X, y, learning_rate, reg_term, iterations):
         predictions = sigmoid(X * theta) # [m x 1] = [m x n] x [n x 1]
         delta = predictions - y # delta is an [m x 1] column vector
 
-        # split theta
-        theta_intercept = theta[0] # optional: not used any further
-        theta_rest = theta[1:]
+        theta_rest = theta[1:] # [(n-1) x 1]
 
+        grad_intercept = learning_rate * 1/m * X[:, 0 ].T * delta
 
-        # compute gradient wo/regularizing intercept term
-        grad_intercept = X[:, 0].T * delta
-        grad_intercept /= m
-        grad_intercept *= learning_rate
+        grad_rest      = learning_rate * 1/m * X[:, 1:].T * delta  # [(n-1) x 1] = [(n-1) x m] x [m x 1] + [(n-1) x 1]
+        reg_term       = reg_param * 1/m * theta_rest # [(n-1) x m]
+        grad_rest      = grad_rest + reg_term
 
-        # compute gradient w/regularization of features except intercept term!)
-        grad_rest = X[:, 1:].T * delta # [(n-1) x 1] = [(n-1) x m] x [m x 1] + [(n-1) x 1]
-        grad_rest /= m
-        grad_rest = grad_rest + (reg_term / m) * theta_rest
-        grad_rest *= learning_rate
-
-        # re-assemble
         gradient = np.concatenate((grad_intercept, grad_rest))
 
         theta = theta - gradient
 
-        # compute cost
-        J = y.T * np.log(predictions) + (1 - y.T) * np.log(1 - predictions)  # y.T is [1 x m] ; predictions is [m x 1]
-        J /= -m
-        J = J + (reg_term / (2 * m) * sum(np.square(theta_rest)))
+        # compute cost (i.e. training error)
+        J        = -1/m * ( y.T * np.log(predictions) + (1 - y.T) * np.log(1 - predictions) )  # y.T is [1 x m] ; predictions is [m x 1]
+        reg_term = reg_param * 1/(2 * m) * sum(np.square(theta_rest))
+        J        = J + reg_term
 
         costHistory.append(np.asscalar(J))
 
