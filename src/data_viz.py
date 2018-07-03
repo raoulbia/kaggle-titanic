@@ -42,6 +42,5 @@ def costHistoryPlot(cost_history):
     x = []
     for index, g in enumerate(cost_history):
         x.append(index)
-
     plt.plot(x, cost_history)
     plt.show()

@@ -3,24 +3,17 @@
 source: https://www.kaggle.com/schmitzi/cleaning-titanic-data-and-running-scikitlearn/code
 """
 import pandas as pd
-import numpy as np
 
 pd.set_option('display.width', 320)
 
-train=pd.read_csv("../data/train.csv", sep=",", header=0, index_col=0)
-test=pd.read_csv("../data/test.csv", sep=",", header=0, index_col=0)
-test.insert(loc=0, column='Survived', value=-9)
-
-data = train.append(train)
-# data = train
 
 def explore(data):
     print(data.columns, "\n\n", data.dtypes)
-    print()
-    print(data.head())
+
 
 def explore_stats(data):
     print(data.describe())
+
 
 def explore_corr(data):
     """
@@ -37,6 +30,7 @@ def explore_corr(data):
     Exactly +1. A perfect uphill (positive) linear relationship
     """
     print("\nCorrelation Coefficients:\n", data.corr(method='pearson'), "\n")
+
 
 def explore_categories(data, num_cat):
     print("Columns with < %s categories:" % num_cat)

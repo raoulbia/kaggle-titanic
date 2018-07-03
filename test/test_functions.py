@@ -35,6 +35,6 @@ J, grad = costFunctionReg(theta = feature_weights,
                           X = feature_matrix,
                           y = ground_truth,
                           learning_rate= 0.1,
-                          num_iters = 4)
+                          iterations= 4)
 
 print(grad)

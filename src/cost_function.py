@@ -6,7 +6,7 @@ from numpy import exp
 def sigmoid(p):
     return 1 / (1 + exp(-p))
 
-def costFunction(theta, X, y, learning_rate, num_iters):
+def costFunction(theta, X, y, learning_rate, num_iters, regularize=False):
     costHistory = []
     m = y.shape[0] # number of training examples
     J = 0
