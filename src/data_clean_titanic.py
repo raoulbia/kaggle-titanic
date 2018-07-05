@@ -8,8 +8,8 @@ import numpy as np
 
 pd.set_option('display.width', 320)
 
-train_df = pd.read_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-train.csv") #, sep=",", header=0, index_col=0, dtype={'Age': np.float64})
-test_df  = pd.read_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-test.csv") #", sep=",", header=0, index_col=0, dtype={'Age': np.float64})
+train_df = pd.read_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-train.csv")
+test_df  = pd.read_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-test.csv")
 
 print(train_df.head())
 combine  = [train_df, test_df]

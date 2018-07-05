@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 import numpy as np
-from src.gradient_descent import regularizedCostLogReg
+from src.logistic_regression import regularizedCostLogReg
 
 # test passenger
 # test_passenger_survived = np.matrix([0, 3, 0, 26.0, 7.9250, 2, 9, 0])

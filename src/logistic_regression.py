@@ -1,24 +1,5 @@
 #!/usr/bin/env python
 
-"""
-https://chunml.github.io/ChunML.github.io/tutorial/Regularization/
-
-L2 regularization i.e. sum of the square of the (theta) weights
-cost function with the regularization term
-the regularization term penalizes large parameters
-
-each time some parameter is updated to become significantly large,
-it will increase the value of the cost function by the regularization term, and as a result
-it will be penalized and updated to a small value.
-
-"""
-
-# https://www.yuthon.com/2016/08/05/Coursera-Machine-Learning-Week-3/
-# https://chunml.github.io/ChunML.github.io/tutorial/Logistic-Regression/
-# https://chunml.github.io/ChunML.github.io/tutorial/Regularization/
-# http://openclassroom.stanford.edu/MainFolder/DocumentPage.php?course=MachineLearning&doc=exercises/ex5/ex5.html
-# http://www.sthda.com/english/articles/36-classification-methods-essentials/151-logistic-regression-essentials-in-r/#logistic-function
-
 import logging
 logger = logging.getLogger(name=__name__)
 
