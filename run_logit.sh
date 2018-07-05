@@ -7,9 +7,7 @@ python3 src/model_train.py \
     --results-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/results.csv \
     --test-size 0.3 \
     --num-iters 1000 \
-    --cost-history-plot -1 \
+    --cost-history-plot 1 \
     --learning-curve -1 \
     --learning-rate 0.01 \
     --reg-param 1.1 \
-    --learning-curve-chunks 10 \
-    --apply-to-kaggle 1

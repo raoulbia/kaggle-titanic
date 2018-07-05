@@ -1,21 +1,38 @@
-### kaggle-titanic
+#### Practicing Machine Learning
 
-Repo for practicing machine learning using the Kaggle Titanic survival prediction competition
+##### Introduction
 
-* Kaggle score for baseline implementation (no feature engineering, no regularization): 0.39234 (position 11,165)
+The goal of this repository is to implement machine learning algorithms as taught in the 
+[Coursera Machine Learning course by Andrew Ng](https://www.coursera.org/learn/machine-learning). In order 
+to focus on the *machine learning* aspect, I chose not not to spend time
+on the (very important) step of *feature engineering*. Instead I use publicly available code to 
+pre-process the raw data before submitting it to my algorithms. The source for any data wrangling 
+code I use is available in the *data_clean_name.py* files.
+ 
+To test my code I use various Kaggle *getting started* prediction competitions:
 
-* Kaggle score for implementation with regularization (no feature engineering): 0.44976 (position 11,162)
+* Logistic Regression: [Kaggle Titanic Survival Prediction](https://www.kaggle.com/c/titanic)
+
+<br>
 
 
-**Conclusion**
+##### Logistic Regression
 
-My goal was to focus on the implementation of logistic regression using
-a **cost function** and using the **gradient descent** algorithm.
-I am confident that the implementation is correct as it followed the assignemnts of the
-[Coursera Machine Learning course by Andrew Ng](https://www.coursera.org/learn/machine-learning).
-However, the scores I achieve when submitting on Kaggle are at the lower. The key take away is then, in my view,
-that a well-designed solution adf the best algorithms will not perform well unless
-considerable effort is put into data exploration and feature engineering!
+My goal was to implementation logistic regression using **regularized Gradient Descent**. Further, In order 
+to evaluate the algorithm I implemented:
+ 
+ * a **cost history curve** to ensure that cost correctly converges to a minimum 
+ * a **learning curve** to analyze the algorithm in terms of *bias* and *variance*
+
+<br>
+
+##### Results
+
+* Titanic Logistic Regression: 0.75 accuracy and leaderboard position 9779 (as of 07/2018)
+
+
+
+
 
 .
 
