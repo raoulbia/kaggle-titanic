@@ -31,6 +31,7 @@ to evaluate the algorithm I implemented:
 * Titanic Logistic Regression: 0.75 accuracy and leaderboard position 9779 (as of 07/2018)
 
 <br>
+
 ##### Some Notes on Regularization
 
 * Regularization is applient to computation of gradients **and** of the cost. 
