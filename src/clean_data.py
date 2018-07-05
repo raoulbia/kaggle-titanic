@@ -1,86 +1,157 @@
 #!/usr/bin/python3
 """
-source: https://www.kaggle.com/schmitzi/cleaning-titanic-data-and-running-scikitlearn/code
+source: https://www.kaggle.com/netssfy/learning-curve
 """
+import re
 import pandas as pd
 import numpy as np
 
 pd.set_option('display.width', 320)
 
-train=pd.read_csv("../data/train.csv", sep=",", header=0, index_col=0)
-test=pd.read_csv("../data/test.csv", sep=",", header=0, index_col=0)
-test.insert(loc=0, column='Survived', value=-9)
+train_df = pd.read_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-train.csv") #, sep=",", header=0, index_col=0, dtype={'Age': np.float64})
+test_df  = pd.read_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-test.csv") #", sep=",", header=0, index_col=0, dtype={'Age': np.float64})
 
-# print(train.head())
-# print(test.head())
+print(train_df.head())
+combine  = [train_df, test_df]
 
-data = train.append(test)
-print(data.head())
-# print(data.tail())
+# modify Cabin
+for dataset in combine:
+    dataset['Cabin'] = dataset['Cabin'].fillna('U')
+    dataset['Cabin'] = dataset.Cabin.str.extract('([A-Za-z])', expand=False)
 
-
-def substrings_in_string(big_string, substrings):
-    for substring in substrings:
-        if string.find(big_string, substring) != -1:
-            return substring
-    print(big_string)
-    return np.nan
-
-# Handle NA values and replace by mean or "usual" value
-
-data.Age.fillna(value=data.Age.mean(), inplace=True)
-data.Fare.fillna(value=data.Fare.mean(), inplace=True)
-data.Embarked.fillna(value=(data.Embarked.value_counts().idxmax()), inplace=True)
-data.Survived.fillna(value=-1, inplace=True) # the test data have NA
-
-# Extract title/salutation from name string
-
-print("Extracting titles and adding column...")
-titles = pd.DataFrame(data.apply(lambda x: x.Name.split(",")[1].split(".")[0], axis=1), columns=["Title"])
-print(pd.Categorical(titles.Title))
-data = data.join(titles)
-
-# Add family size as a combination of the other 2 columns
-
-print("Calculating family size and adding column...")
-fsiz = pd.DataFrame(data.apply(lambda x: x.SibSp+x.Parch+1, axis=1), columns=["FSize"])
-data = data.join(fsiz)
-
-data['IsAlone'] = 0
-data.loc[data['FSize'] == 1, 'IsAlone'] = 1
-
-#Turning cabin number into Deck
-cabin_list = ['A', 'B', 'C', 'D', 'E', 'F', 'T', 'G', 'Unknown']
-data['Deck']=data['Cabin'].map(lambda x: substrings_in_string(x, cabin_list))
-
-# replace columns that are not usable by numeric algorithms and have no use (cabin, ticket...) or have been substituted (parch, sibsp)
-
-# drop useless columns
-data.drop('Name', axis=1, inplace=True)
-data.drop('Cabin', axis=1, inplace=True)
-data.drop('Ticket', axis=1, inplace=True)
-
-# no need for the following as the sum is used
-data.drop('Parch', axis=1, inplace=True)
-data.drop('SibSp', axis=1, inplace=True)
+for dataset in combine:
+    dataset['Cabin'] = dataset['Cabin'].map({'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0,
+                                             'F': 0, 'G': 0, 'T': 0, 'U': 1}).astype(int)
+print(train_df.head())
 
 
-# generate numerical output
-print("Conveting to numerical output...")
-
-for col in data.select_dtypes(exclude=["number"]).columns:
-    print("Converting column "+col+"...")
-    data[col] = data[col].astype('category')
-    print(data[col].cat.categories)
-    data[col] = data[col].cat.codes
+# drop Ticket
+train_df = train_df.drop(['Ticket'], axis=1)
+test_df  = test_df.drop(['Ticket'], axis=1)
+combine  = [train_df, test_df]
 
 
-print(data.head())
-print(data.tail())
+# obtain Title from name (Mr, Mrs, Miss etc)
+for dataset in combine:
+    dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
 
-train = data[data['Survived']!=-9]
-train.to_csv("../local-data/train-clean.csv")
 
-test = data[data['Survived']==-9]
-test.drop('Survived', axis=1, inplace=True)
-test.to_csv("../local-data/test-clean.csv")
+for dataset in combine:
+    dataset['Title'] = dataset['Title'].replace(['Lady', 'Countess', 'Dona'],'Royalty')
+    dataset['Title'] = dataset['Title'].replace(['Mme'], 'Mrs')
+    dataset['Title'] = dataset['Title'].replace(['Mlle','Ms'], 'Miss')
+    dataset['Title'] = dataset['Title'].replace(['Capt', 'Col', 'Major','Rev'], 'Officer')
+    dataset['Title'] = dataset['Title'].replace(['Jonkheer', 'Don','Sir'], 'Royalty')
+    dataset.loc[(dataset.Sex == 'male')   & (dataset.Title == 'Dr'),'Title'] = 'Mr'
+    dataset.loc[(dataset.Sex == 'female') & (dataset.Title == 'Dr'),'Title'] = 'Mrs'
+
+# Covert 'Title' to numbers (Mr->1, Miss->2 ...)
+title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Royalty": 5, "Officer": 6}
+for dataset in combine:
+    dataset['Title'] = dataset['Title'].map(title_mapping)
+    dataset['Title'] = dataset['Title'].fillna(0)
+
+# Remove 'Name' and 'PassengerId' in training data, and 'Name' in testing data
+train_df = train_df.drop(['Name', 'PassengerId'], axis=1)
+test_df = test_df.drop(['Name'], axis=1)
+combine = [train_df, test_df]
+
+# if age < 16, set 'Sex' to Child
+for dataset in combine:
+    dataset.loc[(dataset.Age < 16), 'Sex'] = 'Child'
+
+# Covert 'Sex' to numbers (female:1, male:2)
+for dataset in combine:
+    dataset['Sex'] = dataset['Sex'].map({'female': 1, 'male': 0, 'Child': 2}).astype(int)
+
+print(train_df.head())
+
+
+# Guess age values using median values for age across set of Pclass and gender frature combinations
+for dataset in combine:
+    dataset['Age']=dataset.groupby(['Sex', 'Pclass'])['Age'].transform(lambda x: x.fillna(x.mean())).astype(int)
+
+# create Age bands and determine correlations with Survived
+train_df['AgeBand'] = pd.cut(train_df['Age'], 5)
+train_df[['AgeBand', 'Survived']].groupby(['AgeBand'], as_index=False).mean().sort_values(by='AgeBand', ascending=True)
+
+print(train_df.head())
+
+for dataset in combine:
+    dataset.loc[ dataset['Age'] <= 16, 'Age'] = 0
+    dataset.loc[(dataset['Age'] > 16) & (dataset['Age'] <= 32), 'Age'] = 1
+    dataset.loc[(dataset['Age'] > 32) & (dataset['Age'] <= 48), 'Age'] = 2
+    dataset.loc[(dataset['Age'] > 48) & (dataset['Age'] <= 64), 'Age'] = 3
+    dataset.loc[ dataset['Age'] > 64, 'Age'] = 4
+
+train_df = train_df.drop(['AgeBand'], axis=1)
+combine = [train_df, test_df]
+train_df.head()
+
+print(train_df.head())
+
+# Create family size from 'sibsq + parch + 1'
+for dataset in combine:
+    dataset['FamilySize'] = dataset['SibSp'] + dataset['Parch'] + 1
+
+train_df[['FamilySize', 'Survived']].groupby(['FamilySize'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+
+#create another feature called IsAlone
+for dataset in combine:
+    dataset['IsAlone'] = 0
+    dataset.loc[(dataset['FamilySize'] == 1), 'IsAlone'] = 1
+    dataset.loc[(dataset['FamilySize'] > 4),  'IsAlone'] = 2
+
+train_df[['IsAlone','Survived']].groupby(['IsAlone'], as_index=False).mean()
+
+#drop Parch, SibSp, and FamilySize features in favor of IsAlone
+train_df = train_df.drop(['Parch', 'SibSp', 'FamilySize'], axis=1)
+test_df = test_df.drop(['Parch', 'SibSp', 'FamilySize'], axis=1)
+combine = [train_df, test_df]
+train_df.head()
+
+print(train_df.head())
+
+# Create an artfical feature combinbing PClass and Age.
+for dataset in combine:
+    dataset['Age*Class'] = dataset.Age * dataset.Pclass
+
+train_df.loc[:, ['Age*Class', 'Age', 'Pclass']].head()
+
+print(train_df.head())
+
+# fill the missing values of Embarked feature with the most common occurance
+freq_port = train_df.Embarked.dropna().mode()[0]
+for dataset in combine:
+    dataset['Embarked'] = dataset['Embarked'].fillna(freq_port)
+train_df[['Embarked', 'Survived']].groupby(['Embarked'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+
+for dataset in combine:
+    dataset['Embarked'] = dataset['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+
+print(train_df.head())
+
+# fill the missing values of Fare
+test_df['Fare'].fillna(test_df['Fare'].dropna().median(), inplace=True)
+
+# Create FareBand
+train_df['FareBand'] = pd.qcut(train_df['Fare'], 4)
+train_df[['FareBand', 'Survived']].groupby(['FareBand'], as_index=False).mean().sort_values(by='FareBand', ascending=True)
+
+# Convert the Fare feature to ordinal values based on the FareBand
+for dataset in combine:
+    dataset.loc[ dataset['Fare'] <= 7.91, 'Fare'] = 0
+    dataset.loc[(dataset['Fare'] > 7.91) & (dataset['Fare'] <= 14.454), 'Fare'] = 1
+    dataset.loc[(dataset['Fare'] > 14.454) & (dataset['Fare'] <= 31), 'Fare']   = 2
+    dataset.loc[ dataset['Fare'] > 31, 'Fare'] = 3
+    dataset['Fare'] = dataset['Fare'].astype(int)
+
+train_df = train_df.drop(['FareBand'], axis=1)
+combine = [train_df, test_df]
+
+print(train_df.head())
+print(test_df.head())
+
+
+train_df.to_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-train-clean.csv", index=False)
+test_df.to_csv("/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-test-clean.csv", index=False)

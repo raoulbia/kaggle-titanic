@@ -1,11 +1,15 @@
 #!/bin/bash -x
-
+#    --train-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/train-clean.csv \
 python3 src/model_train.py \
-    --train-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/train-clean.csv \
-    --test-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/test-clean.csv \
-    --results-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/results.csv \
-    --test-size 0.4 \
+    --dataset titanic \
+    --train-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-train-clean3.csv \
+    --test-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-test-clean3.csv \
+    --results-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/results.csv \
+    --test-size 0.3 \
     --num-iters 1000 \
-    --learning-rate 0.001 \
-    --reg-param 1 \
-    --apply-to-kaggle -1
+    --cost-history-plot -1 \
+    --learning-curve -1 \
+    --learning-rate 0.01 \
+    --reg-param 1.1 \
+    --learning-curve-chunks 10 \
+    --apply-to-kaggle 1

@@ -46,8 +46,11 @@ def costHistoryPlot(cost_history):
     plt.show()
 
 def plot_learning_curve(errors):
-    x = []
-    for index, g in enumerate(errors):
-        x.append(index)
-    plt.plot(x, errors)
+
+    for i in errors:
+        x = []
+        for index, g in enumerate(i):
+            x.append(index)
+        plt.plot(x, i)
+    plt.legend(['train', 'test'])
     plt.show()
