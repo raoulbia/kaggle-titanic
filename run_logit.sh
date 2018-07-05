@@ -4,7 +4,7 @@ python3 src/model_train.py \
     --dataset titanic \
     --train-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-train-clean3.csv \
     --test-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/titanic-test-clean3.csv \
-    --results-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/data/results.csv \
+    --results-file-path /home/vagrant/vmtest/github-raoulbia-kaggle-titanic/loca-data/titanic-results.csv \
     --test-size 0.3 \
     --num-iters 1000 \
     --cost-history-plot 1 \
