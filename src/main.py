@@ -45,7 +45,9 @@ def model_data(model, dataset, train_file_path, test_file_path, results_file_pat
 
     # get data
     df = utils.read_csv(train_file_path)
-    # print(df.head())
+
+    df, mu, sigma = utils.normalize_features(df=df)
+    print(df.head())
 
     ### Train Logistic Regression
     X, _, y, _ = utils.split_data(df=df, test_size=test_size, dataset=dataset)

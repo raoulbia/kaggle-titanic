@@ -67,3 +67,18 @@ def evaluate(y, p, model):
 
     elif model == 'linear':
         pass
+
+
+def normalize_features(df):
+    ## Normalize the features in the data set.
+    mu = df.mean()
+
+    sigma = df.std()
+
+    if (sigma == 0).any():
+        raise Exception("One or more features had the same value for all samples, and thus could " + \
+                        "not be normalized. Please do not include features with only a single value " + \
+                        "in your model.")
+    df_normalized = (df - df.mean()) / df.std()
+
+    return df_normalized, mu, sigma
