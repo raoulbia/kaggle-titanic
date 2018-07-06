@@ -33,6 +33,7 @@ print('\ninit feature_weights\n', feature_weights)
 print('\nfeature_matrix\n', feature_matrix)
 print('\nground_truth\n', ground_truth, '\n--------------\n')
 
-J, grad = regularizedCostLogReg(X=feature_matrix, theta=feature_weights, y=ground_truth, learning_rate=0.1, reg_param=4)
+J, grad = regularizedCostLogReg(linear, X=feature_matrix, theta=feature_weights, y=ground_truth, learning_rate=0.1,
+                                reg_param=4)
 
 print(grad)

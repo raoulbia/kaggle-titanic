@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import pandas as pd
-pd.set_option('display.width', 320)
+pd.set_option('display.max_columns', 100)
+
 
 def explore(data):
     print(data.columns, "\n\n", data.dtypes)
@@ -8,6 +9,8 @@ def explore(data):
 
 def explore_stats(data):
     print(data.describe())
+    print(data.describe(include=['object'])) # include=’object’ gives the summary statistics of the character columns
+
 
 
 def explore_corr(data):
@@ -34,3 +37,12 @@ def explore_categories(data, num_cat):
         if len(catdat.categories)>9:
             continue
         print(i," ",pd.Categorical(data[i]), '\n')
+
+
+if __name__ == '__main__':
+    train_fp = "/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/house-price-train-clean.csv"
+    test_fp  = "/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/house-price-test-clean.csv"
+
+    df = pd.read_csv(train_fp)
+    explore(data=df)
+    explore_stats(data=df)
