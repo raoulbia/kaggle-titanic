@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# https://github.com/itsrandeep/linear_regression
 # http://ml-cheatsheet.readthedocs.io/en/latest/linear_regression.html#id3
 # https://jermwatt.github.io/mlrefined/blog_posts/Linear_Supervised_Learning/Part_1_Linear_regression.html
 
