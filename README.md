@@ -81,4 +81,4 @@ the cost.
 
   * [Kaggle Notebook](https://www.kaggle.com/netssfy/learning-curve) (used for feature engineering)
   * [Is standardization needed before fitting logistic regression?](https://stats.stackexchange.com/questions/48360/is-standardization-needed-before-fitting-logistic-regression)
-.
+
