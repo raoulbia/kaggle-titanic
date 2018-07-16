@@ -30,17 +30,23 @@ To evaluate the algorithm I implemented:
 
 <br>
 
-#### Titanic Survival predictions scored by Kaggle
+#### Titanic Survival Predictions Scores 
 
-* hyper-parameters: 
-  * num iterations = 1000
-  * learning rate = 0.3 
-  * regularization term = 1.1
-  
-* Results: 
-  * 0.75 accuracy 
-  * leaderboard position 9779 (as of 07/2018)
-
+* as of 16/07/2018
+  * 0.75119 accuracy (+ 0.00478 from previous)
+  * leaderboard position 9111 (+157 from previous)
+  * hyper-parameters: 
+    * num iterations = 1000
+    * learning rate = 0.001 
+    * regularization term = 0.03
+    
+* as of 05/07/2018
+  * 0.74641 accuracy 
+  * leaderboard position 9779 
+  * hyper-parameters: 
+    * num iterations = 1000
+    * learning rate = 0.3 
+    * regularization term = 1.1
  
 
 <br>

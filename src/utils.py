@@ -15,27 +15,6 @@ from sklearn.metrics import confusion_matrix
 from numpy import exp
 from scipy.special import expit
 
-def read_csv(train_file_path):
-    df = pd.read_csv(train_file_path)
-    return df
-
-def split_cleaned_data(df, test_size, dataset):
-    # X = np.zeros(shape=(df.shape[0], df.shape[1]))
-    # y = np.zeros(shape=(df.shape[0], 1))
-    if dataset == 'titanic':
-        X = np.matrix(df.ix[:, 1:])  # should be df.ix[:, 2:] ??
-        y = np.matrix(df['Survived']).T
-    if dataset == 'diabetes':
-        X = np.matrix(df.ix[:, : -1])
-        X = df.ix[:, : -1]
-        y = np.matrix(df['Outcome']).T
-
-    # add intercept term
-    X = np.append(np.ones((X.shape[0], 1)), X, axis=1)
-    logger.info('Finished appending intercept term')
-
-    return model_selection.train_test_split(X, y, test_size=test_size)
-
 
 def sigmoid(p):
     return expit(p)

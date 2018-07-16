@@ -38,19 +38,53 @@ def pairplot(data, features, outcome):
                  y_vars=['Survived'])
     plt.show()
 
+
+
 def costHistoryPlot(cost_history):
     x = []
     for index, g in enumerate(cost_history):
         x.append(index)
+
     plt.plot(x, cost_history)
+
+    plt.title("Cost History")
+    plt.xlabel("iterations (gradient descent)")
+    plt.ylabel("error")
+    plt.legend(['train'])
+
     plt.show()
 
-def plot_learning_curve(errors):
 
-    for i in errors:
-        x = []
-        for index, g in enumerate(i):
-            x.append(index)
-        plt.plot(x, i)
-    plt.legend(['train', 'test'])
+def plot_learning_curve(errors_tr, errors_val):
+    x = []
+    for index, g in enumerate(errors_tr):
+        x.append(index)
+
+    plt.plot(x, errors_tr)
+    plt.plot(x, errors_val)
+
+    plt.title("Learning Curve")
+    plt.xlabel("training examples")
+    plt.ylabel("error")
+    plt.legend(['train', 'val'])
+
+    # plt.autoscale(tight=True)
+    plt.grid()
     plt.show()
+
+
+def plot_validation_curve(hp_values, errors_tr, errors_te, hyperparam):
+
+    plt.plot(hp_values, errors_tr, marker = 'v')
+    plt.plot(hp_values, errors_te, marker = 'o')
+
+    plt.title("Validation Curve %s"%hyperparam)
+    plt.xlabel("%s"%hyperparam)
+    plt.ylabel("error")
+    plt.legend(['train', 'val'])
+
+    plt.xscale('log')
+    # plt.autoscale(tight=True)
+    plt.grid()
+    plt.show()
+
