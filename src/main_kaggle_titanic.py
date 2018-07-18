@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
-import argparse
 import logging
 import pandas as pd
 pd.set_option('display.max_columns', 100)
@@ -33,11 +30,12 @@ def model_data(train_file_path,
                alpha,
                _lambda):
 
-    # get data (cleaned)
-    X_df = pd.read_csv(train_file_path)
+    # Load (cleaned) Kaggle training data set from CSV file
+    kaggle_training_data_df = pd.read_csv(train_file_path, dtype=float)
 
-    X = np.matrix(X_df.ix[:, 1:])  # should be df.ix[:, 2:] ??
-    y = np.matrix(X_df['Survived']).T
+    # Pull out columns for X (data to train with) and Y (value to predict)
+    X = kaggle_training_data_df.drop('Survived', axis=1).values
+    y = kaggle_training_data_df[['Survived']].values
 
     # Add INTERCEPT term
     X = np.append(np.ones((X.shape[0], 1)), X, axis=1)
@@ -76,33 +74,29 @@ def model_data(train_file_path,
         - find lambda that gives the lowest cross validation error
         """
         lambda_values = [0.000001, 0.0001, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3]
-        # validationCurve(X=X, y=y, hp_name='lambda', hp_values=lambda_values, iterations=num_iters, learned_alpha=0.001)
+        # validationCurve(X=X, y=y, hp_name='lambda', hp_values=lambda_values, iterations=num_iters, learned_alpha=0.1)
 
         """ Step 3 Learning Curve
         - use learned values for alpha and lambda
         """
-        # learningCurve(X=X, y=y, alpha=0.03, _lambda=0.0001, iterations=num_iters)
+        learningCurve(X=X, y=y, alpha=0.1, _lambda=0.03, iterations=num_iters)
 
 
         # verify that cost decreases / converges
         # _, cost_history = gradientDescent(X=X, y=y, alpha=0.001, _lambda=0.03, iterations=num_iters)
-        utils_viz.costHistoryPlot(cost_history=cost_history)
+        # utils_viz.costHistoryPlot(cost_history=cost_history)
 
     if learn_hyperparameters == -1:
         """Apply to Kaggle Test data"""
 
-        # get data
-        X_kaggle_test = pd.read_csv(test_file_path)
+        # Load (cleaned) Kaggle testing data set from CSV file
+        kaggle_test_data_df = pd.read_csv(test_file_path, dtype=float)
 
-        # get Passenger Ids (for later use)
-        X_kaggle_pass_ids = X_kaggle_test['PassengerId']
-
-        # Drop features
-        X_kaggle_test = X_kaggle_test.drop(['PassengerId'], axis=1)
-
+        # Pull out columns for X (data to train with) and Y (value to predict)
+        X_testing = kaggle_test_data_df.drop('PassengerId', axis=1).values
 
         # add intercept terms column
-        X_kaggle_test = np.append(np.ones((X_kaggle_test.shape[0], 1)), X_kaggle_test, axis=1)
+        X_kaggle_test = np.append(np.ones((X_testing.shape[0], 1)), X_testing, axis=1)
 
         # Get theta
         theta, _ = gradientDescent(X=X,
@@ -112,9 +106,11 @@ def model_data(train_file_path,
                                    iterations=num_iters)
 
         ### Predict on Test data
-        p = predictValues(X=X_kaggle_test, theta=theta)
+        y_predicted = predictValues(X=X_kaggle_test, theta=theta)
 
-        res = pd.concat((X_kaggle_pass_ids, pd.DataFrame(p, dtype=int)), axis=1)
+        # Write results to file
+        p = pd.DataFrame(y_predicted)
+        res = pd.concat((kaggle_test_data_df[['PassengerId']].astype(int), p), axis=1)
         res.to_csv(results_file_path, index=False, header=['PassengerId', 'Survived'])
         logger.info('Done!')
 
@@ -123,16 +119,12 @@ def model_data(train_file_path,
 if __name__ == '__main__':
     logger = logging.getLogger()
     logging.basicConfig(level=logging.INFO)
-    argparser = argparse.ArgumentParser()
 
-    argparser.add_argument('--train-file-path')
-    argparser.add_argument('--test-file-path')
-    argparser.add_argument('--results-file-path')
-    argparser.add_argument('--num-iters', type=int)
-    argparser.add_argument('--learn-hyperparameters', type=int)
-    argparser.add_argument('--alpha', type=float)
-    argparser.add_argument('--_lambda', type=float)
-
-
-    args = argparser.parse_args()
-    model_data(**vars(args))
+    model_data(train_file_path='/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/titanic-train-clean.csv',
+               test_file_path='/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/titanic-test-clean.csv',
+               results_file_path='/home/vagrant/vmtest/github-raoulbia-kaggle-house-prices/local-data/house-price-results.csv',
+               num_iters= 1500,
+               learn_hyperparameters=-1,
+               alpha= 0.1,
+               _lambda= 0.03
+               )

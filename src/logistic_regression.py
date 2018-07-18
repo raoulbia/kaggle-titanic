@@ -185,7 +185,7 @@ def gradientDescent(X, y, alpha, _lambda, iterations):
 
         # normalize the gradient to prvent overflow !
         # see http://students.engr.scu.edu/~schaidar/expository/Stochastic_Gradient_Descent.pdf
-        gradient = gradient / np.linalg.norm(gradient)
+        # gradient = gradient / np.linalg.norm(gradient) # not for logistic ?
 
         # multily by learning rate
         gradient = alpha * gradient
@@ -224,7 +224,7 @@ def computeCost(X, y, theta, _lambda):
 
 
 def predictValues(X, theta):
-    predictions = utils.sigmoid(X * theta)  # [m x 1] = [m x n] x [n x 1]
+    predictions = utils.sigmoid(X @ theta)  # [m x 1] = [m x n] x [n x 1]
 
     pos = np.where(predictions >= 0.5)  # index of values >= 0.5
     neg = np.where(predictions < 0.5)
