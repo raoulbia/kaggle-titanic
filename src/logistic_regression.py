@@ -14,8 +14,8 @@ from sklearn import model_selection
 from matplotlib import pyplot as plt
 from operator import add
 
-import utils
-import utils_viz
+from .utils import *
+from .utils_viz import *
 
 
 def validationCurve(X, y, hp_name, hp_values, iterations, learned_alpha=None):
@@ -174,7 +174,7 @@ def gradientDescent(X, y, alpha, _lambda, iterations):
         """
 
         # compute error
-        predictions = utils.sigmoid(X @ theta)  # [m x 1] = [m x n] x [n x 1]
+        predictions = sigmoid(X @ theta)  # [m x 1] = [m x n] x [n x 1]
         delta = predictions - y  # [m x 1]
 
         regularization = (_lambda / m) * theta  # [n x 1]
@@ -187,7 +187,7 @@ def gradientDescent(X, y, alpha, _lambda, iterations):
         # see http://students.engr.scu.edu/~schaidar/expository/Stochastic_Gradient_Descent.pdf
         # gradient = gradient / np.linalg.norm(gradient) # not for logistic ?
 
-        # multily by learning rate
+        # multiply by learning rate
         gradient = alpha * gradient
 
         # add regularization term
@@ -213,7 +213,7 @@ def computeCost(X, y, theta, _lambda):
     m = y.shape[0]  # number of training examples
 
     # compute error
-    predictions = utils.sigmoid(X @ theta)  # [m x 1] = [m x n] x [n x 1]
+    predictions = sigmoid(X @ theta)  # [m x 1] = [m x n] x [n x 1]
     delta = predictions - y  # [m x 1]
 
     # compute cost
@@ -224,7 +224,7 @@ def computeCost(X, y, theta, _lambda):
 
 
 def predictValues(X, theta):
-    predictions = utils.sigmoid(X @ theta)  # [m x 1] = [m x n] x [n x 1]
+    predictions = sigmoid(X @ theta)  # [m x 1] = [m x n] x [n x 1]
 
     pos = np.where(predictions >= 0.5)  # index of values >= 0.5
     neg = np.where(predictions < 0.5)

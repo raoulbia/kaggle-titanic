@@ -15,11 +15,10 @@ np.set_printoptions(suppress=True)
 from matplotlib import pyplot as plt
 
 
-import utils
-from logistic_regression import *
-import utils
-import utils_stats
-import utils_viz
+from .utils import sigmoid
+from .logistic_regression import *
+from .utils_stats import *
+from .utils_viz import *
 
 
 def model_data(train_file_path,
@@ -120,9 +119,9 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logging.basicConfig(level=logging.INFO)
 
-    model_data(train_file_path='/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/titanic-train-clean.csv',
-               test_file_path='/home/vagrant/vmtest/github-raoulbia-kaggle-titanic/local-data/titanic-test-clean.csv',
-               results_file_path='/home/vagrant/vmtest/github-raoulbia-kaggle-house-prices/local-data/house-price-results.csv',
+    model_data(train_file_path='/home/vagrant/vmtest/kaggle-titanic/local-data/titanic-train-clean.csv',
+               test_file_path='/home/vagrant/vmtest/kaggle-titanic/local-data/titanic-test-clean.csv',
+               results_file_path='/home/vagrant/vmtest/kaggle-titanic/local-data/results.csv',
                num_iters= 1500,
                learn_hyperparameters=-1,
                alpha= 0.1,

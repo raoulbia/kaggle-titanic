@@ -1,0 +1,368 @@
+---
+title: "Data Analysis Project: Predicting Lower Back Pain Type"
+author: "Raoul Biagioni 19204876"
+date: "`r Sys.Date()`"
+output: pdf_document
+bibliography: bibliography.bib
+fig_caption: yes 
+number_sections: true
+pandoc_args:
+ \usepackage{booktabs}
+ \usepackage{longtable}
+ \usepackage{array}
+ \usepackage{multirow}
+ \usepackage[table]{xcolor}
+ \usepackage{wrapfig}
+ \usepackage{float}
+ \floatplacement{figure}{H}
+---
+
+```{r load, setup, set-options, setup, include=FALSE, message=FALSE, error=TRUE}
+rm(list=ls())
+library(tidyverse)
+library(knitr) # opts_chunk
+library(kableExtra)
+# library(randomForest)
+
+opts_chunk$set(echo = FALSE,
+               include=TRUE,
+               message = FALSE,
+               warning = FALSE,
+               fig.align = "center",
+               fig.width = 5,
+               fig.pos = 'H',
+               as.is = TRUE)
+theme_set(theme_bw())
+local({
+   load("all.rda")
+   ls()
+})
+attach("all.rda")
+```
+
+# Abstract
+
+The present report describes the process and results of an experiment to select the best of two competing machine learning methods in a binary classification task. The methods are Logistic Regression (LR) and Random Forests (RF). The classification outcomes relate to pain type in a dataset of patient records. The dataset captures information related to musculoskeletal lower back pain. The results show that RF is the optimal method for the classification task at hand.
+
+# Introduction
+
+The patient dataset used in this report originates, to the best of the authors knowledge, from a study related to pain treatment in patients with low back disorders. The purpose of that study [see @smart_mechanisms-based_2012] was to establish criteria with which to classify central sensitisation pain, a condition of the nervous system that is associated with the development and maintenance of chronic pain. The target variable *PainDiagnosis* provides a clinically meaningful binary classification of lower back pain type. 
+
+The purpose of the report is to examine the two candidate methods, LR and LR, and to answer the question of which method achieves the best prediction accuracy. The answer to this question is of interest because ultimately, the better the model is at predicting pain type, the greater the potential benefit to patients. Benefits include optimisation of treatment selection (physiological benefit) and patient education (psychological benefit). 
+
+The variables in the dataset include presence/absence of symptoms and characteristics, physical and mental health scores, scores quantifying the level of anxiety and distress, body location of the pain, duration of pain episode, diagnosis confidence rating, gender and age. Symptom and characteristic variables are directly related to pain type. All of the other variables are not, in the physiological sense, directly related to pain type diagnosis. For example, while a patient's mental health may be affected by his or her low back pain disorder, the specific physiological pain type cannot, to the best of the author's knowledge, be explained by this type of variable. In other words, most of the non-symptom related variables do not allow for diagnosing whether pain is due to damage to non-neural tissue (nociceptive pain) or to a lesion or dysfunction in the nervous system (neuropathic pain). For this reason only the 15 *Criterion* variables representing symptoms and characteristics, as well as the *PainLocation* variable, were retained for completing the task.
+
+# Methods
+
+The pre-processing of the original dataset consisted of grouping the *PainLocation* variable into fewer levels before performing one hot encoding on that variable. The six levels of the variable were grouped into the levels *back*, *leg*, and *back and leg*. The modified variable was then one hot encoded. The motivation for reducing levels was the fact that some of the original levels ocurred in very few observations only. The motivation for one hot encoding was to align with the binary nature of the reminder criteria variables. The original *PainLocation* variable was removed. Lastly, the target variable *PainDiagnosis* was recoded into 0/1 binary form as this is the most common format of target variables in similar contexts.
+  
+The resampling method used for comparing the classification performance of LR and RF is *10-fold cross validation*. In addition, to account for sampling variation and to assess uncertainty, the cross validation process was replicated 100 times. The key elements of this procedure include:
+
+* Each replication performs a 10-fold cross validation by randomly partitioning of the training data into 10 subsets of approximately equal sizes. At each iteration one of the subsets is held out as the validation set and the remaining data is used for model fitting. Classification accuracy is recorded on the validation set. The classification results of the 10 iterations are then averaged. 
+* At the end of each replication the average cross validation score for each method are recorded as well as which of the two method achieved the highest average classification accuracy. 
+* At the end of all 100 replication rounds the best method is selected by majority vote. The method that recorded the highest count as "best classifier" in the above process is selected as the optimal classification method. 
+
+The design of this procedure is motivated by the following considerations. The the R package *randomForest* ([see @rf]) optimises for model generalisation by design. That is, the RF algorithm in this package repeats the learning process a set number of times, each time using a different bootstrapped data sample to train a model and the remainder, out-of-bag, data to test the model. Thus this RF implementation inherently reduces variability and uncertainty. The LR method, in contrast, does not come with in-built resampling methods. The K-fold cross validation addresses this issue for the LR method. The downside to the proposed procedure is that RF goes through a train/validation process twice. However, in order to ensure that both methods use the same validation sets during evaluation both classification methods had to be integrated into the same cross validation process.   
+
+In terms of implementation, RF was used with default parameters - as implemented in the R package *randomForest* ([see @rf]) and the LR-based classification included computing an optimal classification threshold value as part of each k-fold iteration. Lastly, as part of the implementation of the RF method, the three most important features recorded for each replication. 
+
+# Results
+
+The results of the majority votes are shown in Table \ref{tab:wins}. The summary statistics of the average cross validation scores for the 100 replications are shown in Table \ref{tab:sm}. The cross validation scores for the 100 replications are depicted in Fig. \ref{fig:img}. The figure includes the confidence intervals and the estimated mean lines for each of the classification methods. The top 3 features for the first 10 replications are shown in Table \ref{tab:featimp}.
+
+```{r wins}
+wins %>%
+  kable(format="latex", booktabs = T, caption = "Majority votes summary") %>%
+  kable_styling(c("bordered", "condensed"), full_width = F, font_size = 7,
+                latex_options = c("hold_position"))
+```
+
+```{r sm}
+sm %>%
+  kable(format="latex", booktabs = T, caption = "Summary statistics of the cross validation scores for the 100 replications") %>%
+  kable_styling(c("bordered", "condensed"), full_width = F, font_size = 7,
+                latex_options = c("hold_position"))
+```
+```{r img, echo=FALSE, fig.cap="Average accuracy by replications", out.width = "260px"}
+include_graphics("line_plot.png")
+```
+
+``` {r featimp}
+best_feature %>%
+  as.data.frame(.) %>%
+  slice(1:10) %>%
+  kable(format="latex", booktabs = T, linesep = "",
+        caption = "Example top 3 most important features") %>%
+  kable_styling(c("bordered", "condensed"), full_width = F, font_size = 7,
+                latex_options = c("hold_position")) #%>%
+  # footnote(general = "Variable importance decreasing from left to right.",
+  #          footnote_as_chunk = T)
+```
+
+
+# Discussion
+
+The key findings of this experiment are:
+
+* The RF method wins the majority vote by a large margin.
+* The RF method achieves higher classification accuracy, albeit by a relatively small margin, and exhibits lower variability in the estimates compared to LR. 
+* The most important RF predictor variable is Criterion9. The interpretation of why this variable may play such an important role in pain diagnosis is beyound the scope of this report. From a machine learning point of view it means that the observed values on that variable are highly related to the classification values of the target variable *PainDiagnosis*.
+
+
+# Conclusion and Future Work
+
+The process described in this report allows to compare and contrast multiple models and to choose the method which is most likely to correctly diagnose lower back pain for new patient records. The evaluation procedure described in this report increases confidence in how the chosen method would do in situations with truly new and yet unseen data.
+
+Future work includes: 
+
+* To review the proposed evaluation protocol to assess whether it could be simplified.
+* To evaluate the RF method on the entire dataset in order to use all the information available to compare and contrast results to the present approach.
+* To implement bagging (i.e. resampling with replacement) and to compare and contrast results to the present approach.
+* To implement a similar evaluation protocol but this time not for selecting among competing methods but for exploring the RF hyper-parameter space e.g. number of trees or tree size.
+* To explore whether calculating the $\tau$ parameter for the LR method in each cross validation learning round actually adds any significant improvement.
+
+
+# References
+
+<div id="refs"></div>
+
+\pagebreak
+
+# Code
+
+```{r echo = T, eval = F}
+rm(list = ls())
+library(tidyverse)
+library(randomForest)
+options(digits=4, scipen=999)
+
+# load data
+load("data_project_backpain.RData")
+dat <- as.data.frame(dat) # TODO check is this necessary ?
+
+##################
+# Pre-processing #
+##################
+
+# group PainLocation levels
+levels(dat$PainLocation) <- list("Back_Leg" = c("Back+Thigh", 
+                                                "Back + Uni Leg",
+                                                "Back + Bi-lat leg"),
+                                 "Leg" = c("Uni BK", "Bilat BK"),
+                                 "Back" = "Back")
+
+# One Hot Encoding PainLocation
+for(unique_value in unique(dat$PainLocation)){
+  dat[paste("PainLocation",
+            unique_value,
+            sep = ".")] <- ifelse(dat$PainLocation == unique_value, 1, 0)
+}
+dat$PainLocation <- NULL # remove original
+
+# select data
+dat <- dat %>% 
+  select(matches("PainDiagnosis|Criterion|PainLocation")) %>%
+  mutate_if(sapply(., is.numeric), as.factor) %>%
+  mutate(PainDiagnosis = factor(as.numeric(recode(dat$PainDiagnosis,
+                                                  "Nociceptive" = 1,
+                                                  "Neuropathic" = 0))))
+
+#################
+# Model fitting #
+#################
+
+# init params and data structures
+set.seed(1238)
+N <- nrow(dat)
+R <- 100 # nbr replications
+out <- matrix(NA, R, 4)
+colnames(out) <- c("cvscore_rf", "cvscore_lr", "best", "test")
+out <- as.data.frame(out) # to ensure doubles are not stored as characters ...
+best_feature <- matrix(NA, R, 3) # store best feature for each replication
+
+
+
+# replications
+for (r in 1:R){
+  print(r)
+  
+  # randomly split orignal data
+  train_r_idx <- sample(1:N, size = 0.75*N)
+  test_r_idx <- setdiff(1:N, train_r_idx)
+  Xtr <- dat[train_r_idx, ]
+  Xte <- dat[test_r_idx, ] # exclude from k-fold cross validation
+  
+  # init folds
+  N2 <- nrow(Xtr)
+  K <- 10
+  folds <- rep( 1:K, ceiling(N2/K) )
+  folds <- sample(folds) # random permute
+  folds <- folds[1:N2]   # ensure we got N data points
+
+  # for each fold, store accuracy pairs
+  acc <- matrix(NA, K, 2) 
+  
+  # store k best features for current replication
+  best_feature_tmp <- matrix(NA, K, 3) 
+  
+  # k-fold cross validation
+  for ( k in 1:K ) {
+    
+    # split current replication training data into train/val
+    train_idx <- which(folds != k)
+    val_idx <- setdiff(1:N2, train_idx)
+    
+    # fit random forests
+    fitrf <- randomForest(PainDiagnosis ~ .,
+                          data = Xtr,
+                          subset = train_idx,
+                          importance = T)
+
+    # fit logreg
+    fitlr <- glm(PainDiagnosis ~ .,
+                 data = Xtr,
+                 subset = train_idx,
+                 family = "binomial")
+    
+    # Optimal Discrimination Threshold Tau
+    predObj <- prediction(predictions = fitted(fitlr),
+                          labels = Xtr$PainDiagnosis[train_idx])
+    sens <- performance(predObj, "sens")
+    spec <- performance(predObj, "spec")
+    cutoffs <- sens@x.values[[1]]
+    sum_sens_spec <- sens@y.values[[1]] + spec@y.values[[1]]
+    best_idx <- which.max(sum_sens_spec)
+    tau = format(cutoffs[best_idx],3)
+    
+    
+    # validate random forests
+    predrf <- predict(fitrf,
+                      type = "class",
+                      newdata = Xtr[val_idx, ])
+
+
+    # validate logreg
+    predlr_prob <- predict(fitlr,
+                           type = "response",
+                           newdata = Xtr[val_idx, ])
+    predlr <- ifelse(predlr_prob > tau, 1, 0)
+
+    # compute accuracy and store result random forests
+    tabrf <- table(Xtr$PainDiagnosis[val_idx], predrf)
+    acc[k, 1] <- sum(diag(tabrf))/sum(tabrf)
+
+    # compute accuracy and store result logreg
+    tablr <- table(Xtr$PainDiagnosis[val_idx], predlr)
+    acc[k, 2] <- sum(diag(tablr))/sum(tablr)
+
+    # process feature importance information
+    feat_imp_df <- importance(fitrf) %>%
+      data.frame() %>%
+      mutate(feature = row.names(.)) %>%
+      arrange(desc(MeanDecreaseAccuracy)) %>%
+      slice(1:3)
+    for (i in seq(1:3))
+      best_feature_tmp[k, i] <- feat_imp_df$feature[i]
+    
+    } # END fold k
+  
+  # top3 features
+  for (i in seq(1:3))
+    best_feature[r, i] <- max(best_feature_tmp[, i])
+  
+  # avg k-folds
+  avg_k_folds <- apply(acc, 2, mean) # avg k-fold accuracy 
+  avg_k_folds <- c(`Random Forests` = avg_k_folds[1], 
+                   `Logistic Regression` = avg_k_folds[2]) # add names
+  out[r,1] <- avg_k_folds[1]
+  out[r,2] <- avg_k_folds[2]
+
+  
+  
+  # fit models using test set of current replication
+  best <- names( which.max(avg_k_folds) )
+  switch(best,
+         `Random Forests` = {
+           predTestRf <- predict(fitrf,
+                                 type = "class",
+                                 newdata = Xte)
+           tabTestRf <- table(Xte$PainDiagnosis, predTestRf)
+           accBest <- sum(diag(tabTestRf))/sum(tabTestRf)
+         },
+         `Logistic Regression` = {
+           predTestLr_prob <- predict(fitlr,
+                                 type = "response",
+                                 newdata = Xte)
+           predTestLr <- ifelse(predTestLr_prob > tau, 1, 0)
+           tabTestLr <- table(Xte$PainDiagnosis, predTestLr)
+           accBest <- sum(diag(tabTestLr))/sum(tabTestLr)
+         }
+  )
+  out[r,3] <- best
+  out[r,4] <- accBest
+  
+} # END Replication r
+
+
+###########  
+# Results #
+###########
+
+# tabulate rf vs. lr winnings
+wins <- table(out[,3])
+colnames(wins) <- c("Method", "Best")
+print(wins)
+
+# stats for test set
+sm <- tapply(out[,4], out[,3], summary)
+sm <- cbind(`Logistic Regression` = sm$`Logistic Regression`, 
+            `Random Forests` = sm$`Random Forests`)
+sm <- t(sm[c(1,4,6), ])
+sm <- round(sm, 3)
+print(sm)
+
+# best features for replications 1 to 10
+best_feature <- best_feature %>%
+  as.data.frame(.) %>%
+  slice(1:10) %>%
+  mutate(Replication = seq(1:10)) %>%
+  select(Replication,  everything()) %>%
+  rename(`Top 1` = V1, `Top 2` = V2, `Top 3` = V3)
+
+# top 3 features
+top3 <- apply(best_feature, 2, function(x) names(which.max(table(x))))
+print(top3)
+
+# boxplot rf vs lr accuracy
+boxplot(out$test ~ out$best)
+stripchart(out$test ~ out$best, add = TRUE, vertical = TRUE,
+           method = "jitter", pch = 19, col = adjustcolor("magenta3", 0.2))
+
+
+
+
+
+############
+# Plotting #
+############
+
+# line plot rf vs lr accuracy by replication
+meanAcc <- colMeans(out[, 1:2])
+sdAcc <- apply(out[, 1:2], 2, sd)/sqrt(R) # estimated mean accuracy standard deviation
+matplot(out[, 1:2], type="l", lty=c(2,3), col = c("darkorange2", "deepskyblue4"),
+        xlab = "Replications", ylab = "Accuracy")
+# add confidence intervals
+bounds1 <- rep( c(meanAcc[1] - 2*sdAcc[1], meanAcc[1] + 2*sdAcc[1]), each = R )
+bounds2 <- rep( c(meanAcc[2] - 2*sdAcc[2], meanAcc[2] + 2*sdAcc[2]), each = R )
+polygon(c(1:R, R:1), bounds1, col = adjustcolor("darkorange2", 0.2), border = FALSE)
+polygon(c(1:R, R:1), bounds2, col = adjustcolor("deepskyblue4", 0.2), border = FALSE)
+
+# add estimated mean line
+abline(h = meanAcc, col = c("darkorange2", "deepskyblue4"))
+
+# add legend
+legend("bottomleft", fill = c("darkorange2", "deepskyblue4"),
+       legend = c("random forests", "logistic regression"), bty = "n")  
+  
+save(list = ls(all = TRUE), file= "all.rda")
+```
