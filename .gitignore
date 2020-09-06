@@ -1,3 +1,4 @@
 .idea
-local-data
-src/__pycache__
+local-data/
+src/__pycache__/
+*.rda
